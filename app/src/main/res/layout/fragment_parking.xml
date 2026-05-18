@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark">
+
+    <!-- Header -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🅿️ Στάθμευση στην Αθήνα"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:padding="16dp"
+        android:paddingBottom="4dp"/>
+
+    <!-- Main tabs: Spots vs Bookings -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="8dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTabSpots"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="Χώροι"
+            android:textAllCaps="false"
+            android:layout_marginEnd="4dp"
+            app:cornerRadius="8dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTabBookings"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="Κρατήσεις"
+            android:textAllCaps="false"
+            android:layout_marginStart="4dp"
+            app:cornerRadius="8dp"/>
+    </LinearLayout>
+
+    <!-- Spots section -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Parking areas list -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerAreas"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp"
+                android:clipToPadding="false"/>
+
+            <!-- Bookings section -->
+            <LinearLayout
+                android:id="@+id/bookingsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <!-- Sub-filter tabs -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp">
+
+                    <TextView
+                        android:id="@+id/btnFilterAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:gravity="center"
+                        android:text="Όλες"
+                        android:textSize="13sp"
+                        android:textColor="@color/primary"
+                        android:textStyle="bold"
+                        android:paddingHorizontal="16dp"
+                        android:background="@drawable/bg_tab_selected"
+                        android:layout_marginEnd="8dp"/>
+
+                    <TextView
+                        android:id="@+id/btnFilterActive"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:gravity="center"
+                        android:text="Ενεργές"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_secondary"
+                        android:paddingHorizontal="16dp"
+                        android:layout_marginEnd="8dp"/>
+
+                    <TextView
+                        android:id="@+id/btnFilterCancelled"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:gravity="center"
+                        android:text="Ακυρωμένες"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_secondary"
+                        android:paddingHorizontal="16dp"/>
+                </LinearLayout>
+
+                <!-- Reservations header -->
+                <TextView
+                    android:id="@+id/tvReservationsHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ενεργές Κρατήσεις"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#4CAF50"
+                    android:paddingHorizontal="16dp"
+                    android:paddingBottom="8dp"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerReservations"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="16dp"
+                    android:clipToPadding="false"/>
+
+                <!-- Empty state -->
+                <TextView
+                    android:id="@+id/tvEmptyBookings"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="🅿️\nΔεν υπάρχουν κρατήσεις"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_secondary"
+                    android:visibility="gone"/>
+            </LinearLayout>
+        </FrameLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</LinearLayout>

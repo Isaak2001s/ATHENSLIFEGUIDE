@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Athens Life Guide</string>
+    <string name="nav_home">Αρχική</string>
+    <string name="nav_map">Χάρτης</string>
+    <string name="nav_places">Τοποθεσίες</string>
+    <string name="nav_favorites">Αγαπημένα</string>
+    <string name="logout">Αποσύνδεση</string>
+    <string name="nav_parking">Στάθμευση</string>
+</resources>

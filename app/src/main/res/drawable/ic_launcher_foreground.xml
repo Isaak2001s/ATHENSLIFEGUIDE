@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Greek column pillar shape -->
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M30,80 L30,35 L40,35 L40,30 L68,30 L68,35 L78,35 L78,80 Z"/>
+    <path android:fillColor="#0077B6"
+        android:pathData="M25,82 L83,82 L83,86 L25,86 Z"/>
+    <path android:fillColor="#0077B6"
+        android:pathData="M25,24 L83,24 L83,30 L25,30 Z"/>
+    <!-- Columns -->
+    <path android:fillColor="#0077B6"
+        android:pathData="M36,32 L42,32 L42,80 L36,80 Z"/>
+    <path android:fillColor="#0077B6"
+        android:pathData="M50,32 L56,32 L56,80 L50,80 Z"/>
+    <path android:fillColor="#0077B6"
+        android:pathData="M64,32 L70,32 L70,80 L64,80 Z"/>
+</vector>

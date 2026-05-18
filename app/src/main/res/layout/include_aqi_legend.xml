@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="5dp" android:gravity="center_vertical">
+        <View android:layout_width="14dp" android:layout_height="14dp" android:background="#00C853" android:layout_marginEnd="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0–50  Καλή" android:textColor="#9CA3AF" android:textSize="13sp"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="5dp" android:gravity="center_vertical">
+        <View android:layout_width="14dp" android:layout_height="14dp" android:background="#FFD600" android:layout_marginEnd="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="51–100  Μέτρια" android:textColor="#9CA3AF" android:textSize="13sp"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="5dp" android:gravity="center_vertical">
+        <View android:layout_width="14dp" android:layout_height="14dp" android:background="#FF6D00" android:layout_marginEnd="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="101–150  Ανθυγιεινή (Ευαίσθητες Ομάδες)" android:textColor="#9CA3AF" android:textSize="13sp"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="5dp" android:gravity="center_vertical">
+        <View android:layout_width="14dp" android:layout_height="14dp" android:background="#DD2C00" android:layout_marginEnd="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="151–200  Ανθυγιεινή" android:textColor="#9CA3AF" android:textSize="13sp"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="5dp" android:gravity="center_vertical">
+        <View android:layout_width="14dp" android:layout_height="14dp" android:background="#6A1B9A" android:layout_marginEnd="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="201–300  Πολύ Ανθυγιεινή" android:textColor="#9CA3AF" android:textSize="13sp"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+        <View android:layout_width="14dp" android:layout_height="14dp" android:background="#B71C1C" android:layout_marginEnd="8dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="301+  Επικίνδυνη" android:textColor="#9CA3AF" android:textSize="13sp"/>
+    </LinearLayout>
+</LinearLayout>

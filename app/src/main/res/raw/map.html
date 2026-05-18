@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Athens Life Guide Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; background:#0d1117; overflow:hidden; }
+  
+  /* Adding a transition makes rotation smooth. Container needs full size */
+  #map-wrapper { width:100%; height:100%; overflow:hidden; }
+  #map { 
+    width:100%; height:100%; 
+    transition: transform 0.1s linear; 
+  }
+  
+  .leaflet-top.leaflet-left { top: 52px; }
+
+  /* Custom marker styles */
+  .aqi-marker {
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 2px solid rgba(255,255,255,0.8);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .aqi-inner {
+    transform: rotate(45deg);
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+    line-height: 1;
+  }
+  .place-marker {
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 2px solid rgba(255,255,255,0.7);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .place-inner {
+    transform: rotate(45deg);
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  /* Popup */
+  .leaflet-popup-content-wrapper {
+    background: #1f2937;
+    color: #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .leaflet-popup-tip { background: #1f2937; }
+  .leaflet-popup-content { margin: 12px 14px; }
+  .popup-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .popup-sub   { font-size: 12px; color: #9ca3af; margin-bottom: 8px; }
+  .popup-aqi   { font-size: 22px; font-weight: 800; }
+  .popup-level { font-size: 12px; margin-bottom: 6px; }
+  .popup-btn {
+    display: inline-block; margin-top:6px; padding: 6px 14px;
+    background: #0077b6; color: white; border-radius: 20px;
+    font-size: 12px; cursor: pointer; border: none; width: 100%; text-align: center;
+  }
+  .popup-btn:active { background: #005f8e; }
+</style>
+</head>
+<body>
+<div id="map-wrapper">
+  <div id="map"></div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Geoapify tile layer ──────────────────────────────────────────────────────
+const GEOAPIFY_KEY = '514dfa64079046949e5521fcbb596523';
+
+const map = L.map('map', {
+  center: [37.9838, 23.7275],
+  zoom: 13,
+  zoomControl: true
+});
+
+L.tileLayer(
+  `https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${GEOAPIFY_KEY}`,
+  {
+    attribution: '© <a href="https://www.geoapify.com/">Geoapify</a> | © OpenStreetMap',
+    maxZoom: 20
+  }
+).addTo(map);
+
+// ── Layer groups ─────────────────────────────────────────────────────────────
+const layers = {
+  aqi:     L.layerGroup().addTo(map),
+  parks:   L.layerGroup().addTo(map),
+  squares: L.layerGroup().addTo(map),
+  transit: L.layerGroup().addTo(map),
+  parking: L.layerGroup().addTo(map)
+};
+// ── Helper: make custom DivIcon ───────────────────────────────────────────────
+function makeAqiIcon(aqi, hex) {
+  const textColor = (aqi <= 100) ? '#111' : '#fff';
+  return L.divIcon({
+    className: '',
+    html: `<div class="aqi-marker" style="width:42px;height:42px;background:${hex}">
+             <div class="aqi-inner" style="color:${textColor}">${aqi}</div>
+           </div>`,
+    iconSize: [42, 42],
+    iconAnchor: [21, 42],
+    popupAnchor: [0, -44]
+  });
+}
+
+function makePlaceIcon(emoji, hex) {
+  return L.divIcon({
+    className: '',
+    html: `<div class="place-marker" style="width:36px;height:36px;background:${hex}">
+             <div class="place-inner">${emoji}</div>
+           </div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -38]
+  });
+}
+
+// ── AQI colour ────────────────────────────────────────────────────────────────
+function aqiColor(aqi) {
+  if (aqi <= 50)  return '#00C853';
+  if (aqi <= 100) return '#FFD600';
+  if (aqi <= 150) return '#FF6D00';
+  if (aqi <= 200) return '#DD2C00';
+  if (aqi <= 300) return '#6A1B9A';
+  return '#B71C1C';
+}
+function aqiLabel(aqi) {
+  if (aqi <= 50)  return 'Καλή';
+  if (aqi <= 100) return 'Μέτρια';
+  if (aqi <= 150) return 'Ανθυγ. (Ευαίσθητες)';
+  if (aqi <= 200) return 'Ανθυγιεινή';
+  if (aqi <= 300) return 'Πολύ Ανθυγιεινή';
+  return 'Επικίνδυνη';
+}
+
+// ── Android → JS bridge ───────────────────────────────────────────────────────
+function addAqiStations(json) {
+  layers.aqi.clearLayers();
+  const stations = JSON.parse(json);
+  stations.forEach(s => {
+    const hex = aqiColor(s.aqi);
+    const icon = makeAqiIcon(s.aqi, hex);
+    const m = L.marker([s.lat, s.lng], { icon }).addTo(layers.aqi);
+    m.bindPopup(`
+      <div class="popup-title">💨 ${s.name}</div>
+      <div class="popup-aqi" style="color:${hex}">${s.aqi}</div>
+      <div class="popup-level">${aqiLabel(s.aqi)}</div>
+      <div class="popup-sub">Σταθμός Παρακολούθησης Αέρα</div>
+      <button class="popup-btn" onclick="Android.saveFav('aqi_${s.uid}','${escJs(s.name)}','aqi',${s.lat},${s.lng},'AQI: ${s.aqi}')">
+        ⭐ Αποθήκευση στα Αγαπημένα
+      </button>`);
+  });
+}
+
+function addPlaces(json) {
+  layers.parks.clearLayers();
+  layers.squares.clearLayers();
+  layers.transit.clearLayers();
+  const places = JSON.parse(json);
+  places.forEach(p => {
+    let layer;
+    switch(p.type) {
+      case 'PARK':   layer = layers.parks;   break;
+      case 'SQUARE': layer = layers.squares; break;
+      default:       layer = layers.transit; break;
+    }
+    const icon = makePlaceIcon(p.emoji, p.colorHex);
+    const m = L.marker([p.lat, p.lng], { icon }).addTo(layer);
+    const linesHtml = p.lines && p.lines.length
+      ? `<div class="popup-sub">Γραμμές: ${p.lines.join(', ')}</div>` : '';
+    m.bindPopup(`
+      <div class="popup-title">${p.emoji} ${p.name}</div>
+      <div class="popup-sub">${p.typeLabel}</div>
+      ${linesHtml}
+      <div class="popup-sub">${p.description || ''}</div>
+      <button class="popup-btn" onclick="Android.saveFav('${p.id}','${escJs(p.name)}','${p.type.toLowerCase()}',${p.lat},${p.lng},'${escJs(p.description)}')">
+        ⭐ Αποθήκευση στα Αγαπημένα
+      </button>`);
+  });
+}
+function addParking(json) {
+  layers.parking.clearLayers();
+  const spots = JSON.parse(json);
+  spots.forEach(p => {
+    const hex = p.occupancyLevel === 'low' ? '#4CAF50' :
+                p.occupancyLevel === 'medium' ? '#FFC107' : '#F44336';
+    const textColor = p.occupancyLevel === 'medium' ? '#111' : '#fff';
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="place-marker" style="width:36px;height:36px;background:${hex}">
+         <div class="place-inner">🅿️</div>
+       </div>`,
+iconSize: [36, 36],
+iconAnchor: [18, 36],
+popupAnchor: [0, -38]
+    });
+    const levelGr = p.occupancyLevel === 'low' ? 'Χαμηλή' :
+                    p.occupancyLevel === 'medium' ? 'Μέτρια' : 'Υψηλή';
+    const m = L.marker([p.lat, p.lng], { icon }).addTo(layers.parking);
+    m.bindPopup(`
+      <div class="popup-title">🅿️ ${p.name}</div>
+      <div class="popup-sub">${p.address}</div>
+      <div style="display:flex;justify-content:space-between;margin:8px 0">
+        <div>
+          <div style="font-size:20px;font-weight:800;color:${hex}">${p.available}/${p.total}</div>
+          <div style="font-size:11px;color:#9ca3af">θέσεις</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:20px;font-weight:800;color:#48CAE4">€${p.price}</div>
+          <div style="font-size:11px;color:#9ca3af">ανά ώρα</div>
+        </div>
+      </div>
+      <div style="text-align:center;padding:4px 8px;border-radius:8px;background:${hex}22;color:${hex};font-weight:600;font-size:12px;margin-bottom:8px">
+        Πληρότητα: ${levelGr}
+      </div>
+      ${p.available > 0 ?
+        `<button class="popup-btn" style="background:#4CAF50;margin-bottom:6px" onclick="Android.reserveParking('${p.id}','${escJs(p.name)}',${p.price})">
+          🅿️ Κράτηση (15 λεπτά)
+        </button>` :
+        `<div style="text-align:center;padding:8px;color:#F44336;font-weight:600;font-size:13px">Πλήρες — Δεν υπάρχουν θέσεις</div>`
+      }
+      <button class="popup-btn" onclick="Android.saveFav('${p.id}','${escJs(p.name)}','parking',${p.lat},${p.lng},'${p.available}/${p.total} θέσεις — €${p.price}/ώρα')">
+        ⭐ Αγαπημένα
+      </button>`);
+  });
+}
+function setFilter(filter) {
+  const show = filter === 'all';
+  if (filter === 'aqi'     || show) map.addLayer(layers.aqi);     else map.removeLayer(layers.aqi);
+  if (filter === 'parks'   || show) map.addLayer(layers.parks);   else map.removeLayer(layers.parks);
+  if (filter === 'squares' || show) map.addLayer(layers.squares); else map.removeLayer(layers.squares);
+  if (filter === 'transit' || show) map.addLayer(layers.transit); else map.removeLayer(layers.transit);
+  if (filter === 'parking' || show) map.addLayer(layers.parking); else map.removeLayer(layers.parking);
+  if (filter === 'traffic' || show) map.addLayer(layers.traffic); else map.removeLayer(layers.traffic);
+}
+function goToLocation(lat, lng) {
+  map.setView([lat, lng], 16);
+  L.circle([lat, lng], { radius: 40, color: '#0077b6', fillOpacity: 0.3 }).addTo(map);
+}
+
+// ── Rotation Lock ────────────────────────────────────────────────────────────
+let isCompassLocked = false;
+function setCompassLock(locked) {
+  isCompassLocked = locked;
+  if(locked) {
+    // Both panning and zooming stay active per user request.
+  } else {
+    document.getElementById('map').style.transform = "rotate(0deg) scale(1)";
+    
+    // Reset marker rotations
+    const markers = document.querySelectorAll('.leaflet-marker-icon, .leaflet-popup');
+    markers.forEach(marker => {
+      let currentTransform = marker.style.transform;
+      currentTransform = currentTransform.replace(/rotate\([^)]+\)/g, '').trim();
+      marker.style.transform = currentTransform;
+    });
+  }
+}
+
+function setCompassRotation(deg) {
+  if (isCompassLocked) {
+    const mapRotation = -deg;
+    
+    // Rotate the full map and scale it up slightly so corners don't show empty black space
+    document.getElementById('map').style.transform = "rotate(" + mapRotation + "deg) scale(1.4)";
+    
+    // Counter-rotate the markers AND set pivot point to their bottom tip so they stay accurately placed
+    const markers = document.querySelectorAll('.leaflet-marker-icon');
+    markers.forEach(marker => {
+      marker.style.transformOrigin = "50% 100%";
+      let currentTransform = marker.style.transform;
+      currentTransform = currentTransform.replace(/rotate\([^)]+\)/g, '').trim();
+      marker.style.transform = currentTransform + " rotate(" + deg + "deg)";
+    });
+
+    const popups = document.querySelectorAll('.leaflet-popup');
+    popups.forEach(popup => {
+      popup.style.transformOrigin = "50% 100%";
+      let currentTransform = popup.style.transform;
+      currentTransform = currentTransform.replace(/rotate\([^)]+\)/g, '').trim();
+      popup.style.transform = currentTransform + " rotate(" + deg + "deg)";
+    });
+  }
+}
+
+function escJs(s) { return String(s).replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+
+
+// ── Simulated Traffic Lights ──────────────────────────────────────────────
+const trafficLights = [
+  { id: 'tl_01', name: 'Σύνταγμα / Αμαλίας',      lat: 37.9748, lng: 23.7358 },
+  { id: 'tl_02', name: 'Πανεπιστημίου / Σταδίου',  lat: 37.9793, lng: 23.7320 },
+  { id: 'tl_03', name: 'Ομόνοια / Πατησίων',       lat: 37.9841, lng: 23.7283 },
+  { id: 'tl_04', name: 'Βασ. Σοφίας / Ηρώδου',     lat: 37.9755, lng: 23.7420 },
+  { id: 'tl_05', name: 'Αθηνάς / Ερμού',           lat: 37.9770, lng: 23.7268 }
+];
+
+let trafficState = false;
+const trafficLayer = L.layerGroup().addTo(map);
+layers.traffic = trafficLayer;
+
+function updateTrafficLights() {
+  trafficState = !trafficState;
+  trafficLayer.clearLayers();
+  trafficLights.forEach((tl, i) => {
+    const isGreen = (i % 2 === 0) ? trafficState : !trafficState;
+    const hex = isGreen ? '#4CAF50' : '#F44336';
+    const status = isGreen ? 'Πράσινο' : 'Κόκκινο';
+    const emoji = isGreen ? '🟢' : '🔴';
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="place-marker" style="width:30px;height:30px;background:${hex}">
+               <div class="place-inner" style="font-size:12px">🚦</div>
+             </div>`,
+      iconSize: [30, 30],
+      iconAnchor: [15, 30],
+      popupAnchor: [0, -32]
+    });
+    const m = L.marker([tl.lat, tl.lng], { icon }).addTo(trafficLayer);
+    m.bindPopup(`
+      <div class="popup-title">🚦 ${tl.name}</div>
+      <div class="popup-sub">Φανάρι κυκλοφορίας (προσομοίωση)</div>
+      <div style="font-size:18px;font-weight:800;color:${hex};margin:6px 0">${emoji} ${status}</div>
+      <div class="popup-sub">Εναλλαγή κάθε 5 δευτερόλεπτα</div>`);
+  });
+}
+
+updateTrafficLights();
+setInterval(updateTrafficLights, 5000);
+
+// ── Tell Android the map is ready ────────────────────────────────────────────
+window.onload = function() {
+  try { Android.onMapReady(); } catch(e) { console.log('Bridge not ready yet'); }
+};
+</script>
+</body>
+</html>

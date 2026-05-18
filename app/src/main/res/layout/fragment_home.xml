@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/swipe"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bg_dark"
+        android:fillViewport="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Header -->
+            <TextView android:id="@+id/tvWelcome"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:textSize="20sp" android:textStyle="bold"
+                android:textColor="@color/text_primary" android:layout_marginBottom="2dp"/>
+            <TextView android:id="@+id/tvDate"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:textSize="13sp" android:textColor="@color/text_secondary"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- Main AQI Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardAqi"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp" app:cardElevation="8dp"
+                app:cardBackgroundColor="@color/bg_card"
+                app:strokeColor="@color/border" app:strokeWidth="1dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Colored Header band -->
+                    <LinearLayout
+                        android:id="@+id/headerAqi"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:gravity="center"
+                        android:paddingTop="24dp" android:paddingBottom="20dp"
+                        android:paddingHorizontal="16dp"
+                        android:background="@color/primary">
+
+                        <TextView android:id="@+id/tvAqiEmoji"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:textSize="36sp"/>
+                        <TextView android:id="@+id/tvAqiNum"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="—" android:textSize="64sp" android:textStyle="bold"
+                            android:textColor="@color/text_primary" android:lineSpacingMultiplier="0.9"/>
+                        <TextView android:id="@+id/tvAqiLabel"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:textSize="17sp" android:textStyle="bold"
+                            android:textColor="@color/text_primary"/>
+                        <TextView android:id="@+id/tvStation"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:textSize="12sp" android:textColor="@color/text_primary"
+                            android:alpha="0.75" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+
+                    <!-- Progress scale -->
+                    <ProgressBar android:id="@+id/aqiBar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent" android:layout_height="6dp"
+                        android:max="100" android:progress="0"/>
+
+                    <!-- Advice + components -->
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:padding="16dp">
+
+                        <TextView android:id="@+id/tvAdvice"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:textSize="14sp" android:textColor="@color/text_primary"
+                            android:layout_marginBottom="14dp"/>
+
+                        <!-- 2-column components -->
+                        <LinearLayout
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:orientation="horizontal" android:layout_marginBottom="8dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="0dp" android:layout_height="wrap_content"
+                                android:layout_weight="1" android:layout_marginEnd="6dp"
+                                app:cardCornerRadius="10dp" app:cardBackgroundColor="@color/bg_surface"
+                                app:strokeColor="@color/border" app:strokeWidth="1dp">
+                                <TextView android:id="@+id/tvPm25"
+                                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:textSize="12sp" android:textColor="@color/text_secondary"
+                                    android:padding="10dp" android:fontFamily="monospace"/>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="0dp" android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                app:cardCornerRadius="10dp" app:cardBackgroundColor="@color/bg_surface"
+                                app:strokeColor="@color/border" app:strokeWidth="1dp">
+                                <TextView android:id="@+id/tvPm10"
+                                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:textSize="12sp" android:textColor="@color/text_secondary"
+                                    android:padding="10dp" android:fontFamily="monospace"/>
+                            </com.google.android.material.card.MaterialCardView>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="0dp" android:layout_height="wrap_content"
+                                android:layout_weight="1" android:layout_marginEnd="6dp"
+                                app:cardCornerRadius="10dp" app:cardBackgroundColor="@color/bg_surface"
+                                app:strokeColor="@color/border" app:strokeWidth="1dp">
+                                <TextView android:id="@+id/tvO3"
+                                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:textSize="12sp" android:textColor="@color/text_secondary"
+                                    android:padding="10dp" android:fontFamily="monospace"/>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="0dp" android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                app:cardCornerRadius="10dp" app:cardBackgroundColor="@color/bg_surface"
+                                app:strokeColor="@color/border" app:strokeWidth="1dp">
+                                <TextView android:id="@+id/tvNo2"
+                                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:textSize="12sp" android:textColor="@color/text_secondary"
+                                    android:padding="10dp" android:fontFamily="monospace"/>
+                            </com.google.android.material.card.MaterialCardView>
+                        </LinearLayout>
+
+                        <TextView android:id="@+id/tvUpdated"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:textSize="11sp" android:textColor="@color/text_secondary"
+                            android:alpha="0.6" android:layout_marginTop="12dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Legend Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp" app:cardBackgroundColor="@color/bg_card"
+                app:cardElevation="4dp" app:strokeColor="@color/border" app:strokeWidth="1dp"
+                android:layout_marginBottom="16dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Κλίμακα AQI" android:textSize="15sp" android:textStyle="bold"
+                        android:textColor="@color/text_primary" android:layout_marginBottom="10dp"/>
+                    <include layout="@layout/include_aqi_legend"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRefresh"
+                android:layout_width="match_parent" android:layout_height="48dp"
+                android:text="🔄  Ανανέωση δεδομένων"
+                app:backgroundTint="@color/bg_surface"
+                app:strokeColor="@color/primary" app:strokeWidth="1dp"
+                android:textColor="@color/primary"/>
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
