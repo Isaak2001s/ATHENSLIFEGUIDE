@@ -389,7 +389,14 @@ function setCompassRotation(deg) {
     // Counter-rotate the markers AND set pivot point to their bottom tip
     const markers = document.querySelectorAll('.leaflet-marker-icon');
     markers.forEach(marker => {
-      marker.style.transformOrigin = "50% 100%";
+      // The blue GPS dot should rotate around its exact center (50% 50%), 
+      // while standard pin markers rotate around their bottom tip (50% 100%)
+      if (marker.classList.contains('my-loc-wrapper')) {
+        marker.style.transformOrigin = "50% 50%";
+      } else {
+        marker.style.transformOrigin = "50% 100%";
+      }
+      
       let currentTransform = marker.style.transform.split('rotate(')[0].trim();
       marker.style.transform = currentTransform + " rotate(" + deg + "deg)";
     });
@@ -462,7 +469,7 @@ let myLocMarker = null;
 function updateMyLocation(lat, lng) {
   if (!myLocMarker) {
     const icon = L.divIcon({
-      className: '',
+      className: 'my-loc-wrapper',
       html: `
         <div class="my-location-icon">
           <div class="my-location-pulse"></div>
