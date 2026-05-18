@@ -100,7 +100,6 @@ class MapFragment : Fragment() {
     private fun setupFilters() {
         val chips = mapOf(
             b.chipAll     to "all",
-            b.chipAqi     to "aqi",
             b.chipParks   to "parks",
             b.chipSquares to "squares",
             b.chipTransit to "transit",
@@ -294,10 +293,14 @@ class MapFragment : Fragment() {
     @SuppressLint("MissingPermission")
     private fun fetchLocation() {
         LocationServices.getFusedLocationProviderClient(requireActivity())
-            .lastLocation
+            .getCurrentLocation(com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, null)
             .addOnSuccessListener { loc ->
-                if (loc != null) evalJs("goToLocation(${loc.latitude},${loc.longitude})")
-                else Toast.makeText(requireContext(), "Δεν βρέθηκε τοποθεσία", Toast.LENGTH_SHORT).show()
+                if (loc != null) {
+                    evalJs("updateMyLocation(${loc.latitude},${loc.longitude})")
+                    evalJs("goToLocation(${loc.latitude},${loc.longitude})")
+                } else {
+                    Toast.makeText(requireContext(), "Δεν βρέθηκε τοποθεσία", Toast.LENGTH_SHORT).show()
+                }
             }
     }
 

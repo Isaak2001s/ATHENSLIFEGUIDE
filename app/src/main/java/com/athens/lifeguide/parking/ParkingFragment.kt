@@ -233,7 +233,7 @@ class ParkingAreaAdapter(
 
             b.btnFav.text = "☆"
             b.btnFav.setOnClickListener {
-                val isFav = b.btnFav.text == "★"
+                val isFav = b.btnFav.text.toString() == "★"
                 b.btnFav.text = if (isFav) "☆" else "★"
                 onFav(area)
             }
@@ -299,15 +299,19 @@ class ReservationAdapter(private val onCancel: (ReservationEntity) -> Unit) :
             headerLayout.addView(tvName)
 
             val isActive = r.status == "active"
-            val badgeColor = if (isActive) "#4CAF50" else "#9E9E9E"
             val badgeText = if (isActive) "ΕΝΕΡΓΗ" else "ΑΚΥΡΩΜΕΝΗ"
 
             val tvBadge = android.widget.TextView(ctx).apply {
                 text = badgeText
-                setTextColor(Color.parseColor(badgeColor))
-                textSize = 11f
-                setPadding(16, 4, 16, 4)
-                setBackgroundColor(Color.parseColor(badgeColor + "22"))
+                setTextColor(Color.WHITE)
+                textSize = 12f
+                typeface = android.graphics.Typeface.DEFAULT_BOLD
+                gravity = Gravity.CENTER
+                setPadding(20, 8, 20, 8)
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    cornerRadius = 16f
+                    setColor(Color.parseColor(if (isActive) "#4CAF50" else "#757575"))
+                }
             }
             headerLayout.addView(tvBadge)
             layout.addView(headerLayout)
