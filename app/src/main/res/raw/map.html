@@ -10,13 +10,21 @@
   html, body { width:100%; height:100%; background:#0d1117; overflow:hidden; }
   
   /* Adding a transition makes rotation smooth. Container needs full size */
-  #map-wrapper { width:100%; height:100%; overflow:hidden; }
+  #map-wrapper { 
+    position: absolute;
+    top: -30vh; left: -30vw;
+    width: 160vw; height: 160vh;
+    transition: transform 0.1s linear;
+    transform-origin: 50% 50%;
+  }
   #map { 
-    width:100%; height:100%; 
-    transition: transform 0.1s linear; 
+    width: 100%; height: 100%; 
   }
   
-  .leaflet-top.leaflet-left { top: 52px; }
+  .leaflet-top.leaflet-left { top: calc(30vh + 52px); left: calc(30vw); }
+  .leaflet-bottom.leaflet-right { bottom: calc(30vh); right: calc(30vw); }
+  .leaflet-bottom.leaflet-left { bottom: calc(30vh); left: calc(30vw); }
+  .leaflet-top.leaflet-right { top: calc(30vh + 52px); right: calc(30vw); }
 
   /* Custom marker styles */
   .aqi-marker {
@@ -251,9 +259,23 @@ let isCompassLocked = false;
 function setCompassLock(locked) {
   isCompassLocked = locked;
   if(locked) {
-    // Both panning and zooming stay active per user request.
+    // Disable dragging and zooming
+    map.dragging.disable();
+    map.touchZoom.disable();
+    map.doubleClickZoom.disable();
+    map.scrollWheelZoom.disable();
+    map.boxZoom.disable();
+    map.keyboard.disable();
   } else {
-    document.getElementById('map').style.transform = "rotate(0deg) scale(1)";
+    // Enable dragging and zooming
+    map.dragging.enable();
+    map.touchZoom.enable();
+    map.doubleClickZoom.enable();
+    map.scrollWheelZoom.enable();
+    map.boxZoom.enable();
+    map.keyboard.enable();
+    
+    document.getElementById('map-wrapper').style.transform = "rotate(0deg)";
     
     // Reset marker rotations
     const markers = document.querySelectorAll('.leaflet-marker-icon, .leaflet-popup');
@@ -269,10 +291,10 @@ function setCompassRotation(deg) {
   if (isCompassLocked) {
     const mapRotation = -deg;
     
-    // Rotate the full map and scale it up slightly so corners don't show empty black space
-    document.getElementById('map').style.transform = "rotate(" + mapRotation + "deg) scale(1.4)";
+    // Rotate the wrapper (centered and oversized)
+    document.getElementById('map-wrapper').style.transform = "rotate(" + mapRotation + "deg)";
     
-    // Counter-rotate the markers AND set pivot point to their bottom tip so they stay accurately placed
+    // Counter-rotate the markers AND set pivot point to their bottom tip
     const markers = document.querySelectorAll('.leaflet-marker-icon');
     markers.forEach(marker => {
       marker.style.transformOrigin = "50% 100%";
@@ -281,11 +303,13 @@ function setCompassRotation(deg) {
       marker.style.transform = currentTransform + " rotate(" + deg + "deg)";
     });
 
+    // For popups, the anchor tip is bottom center.
     const popups = document.querySelectorAll('.leaflet-popup');
     popups.forEach(popup => {
       popup.style.transformOrigin = "50% 100%";
       let currentTransform = popup.style.transform;
       currentTransform = currentTransform.replace(/rotate\([^)]+\)/g, '').trim();
+      // Counter-rotate popups
       popup.style.transform = currentTransform + " rotate(" + deg + "deg)";
     });
   }
