@@ -8,9 +8,9 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   html, body { width:100%; height:100%; background:#0d1117; overflow:hidden; }
-  
+
   /* ── Fix Map Corners: the map is oversized so rotation doesn't expose corners ── */
-  #map-wrapper { 
+  #map-wrapper {
     position: absolute;
     top: 50vh; left: 50vw;
     width: 160vmax; height: 160vmax;
@@ -18,10 +18,10 @@
     transition: transform 0.1s linear;
     transform-origin: 50% 50%;
   }
-  #map { 
-    width: 100%; height: 100%; 
+  #map {
+    width: 100%; height: 100%;
   }
-  
+
   .leaflet-top.leaflet-left { top: calc(80vmax - 50vh + 52px); left: calc(80vmax - 50vw); }
   .leaflet-bottom.leaflet-right { bottom: calc(80vmax - 50vh); right: calc(80vmax - 50vw); }
   .leaflet-bottom.leaflet-left { bottom: calc(80vmax - 50vh); left: calc(80vmax - 50vw); }
@@ -56,7 +56,7 @@
 
   /* Popup adjustments */
   .leaflet-popup {
-    margin-bottom: 42px !important;
+    margin-bottom: 46px !important;
   }
   .leaflet-popup-content-wrapper {
     background: #1f2937;
@@ -76,11 +76,85 @@
     font-size: 12px; cursor: pointer; border: none; width: 100%; text-align: center;
   }
   .popup-btn:active { background: #005f8e; }
+  /* ── Live GPS Location Marker ── */
+  .my-location-icon {
+    position: relative;
+    width: 80px; height: 80px;
+  }
+  .my-location-cone {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    /* Draws a 70-degree field-of-view cone pointing UP */
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 50 L15 0 A50 50 0 0 1 85 0 Z" fill="%234285F4" fill-opacity="0.35"/></svg>');
+    background-size: cover;
+    transform-origin: 50% 50%;
+    transition: transform 0.1s linear;
+    z-index: 1;
+  }
+  .my-location-dot {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 18px; height: 18px;
+    margin-top: -9px; margin-left: -9px;
+    background-color: #4285F4;
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    z-index: 2;
+  }
+  .my-location-pulse {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 60px; height: 60px;
+    margin-top: -30px; margin-left: -30px;
+    background-color: rgba(66, 133, 244, 0.25);
+    border-radius: 50%;
+    z-index: 0;
+    animation: gps-pulse 2s infinite ease-out;
+  }
+  @keyframes gps-pulse {
+    0% { transform: scale(0.3); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+
+  /* ── Custom Fixed Zoom Controls ── */
+  #custom-zoom-controls {
+    position: absolute;
+    top: 52px; left: 10px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+  }
+  #custom-zoom-controls button {
+    width: 34px; height: 34px;
+    background: #fff;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+    line-height: 1;
+    cursor: pointer;
+  }
+  #custom-zoom-controls button:last-child {
+    border-bottom: none;
+  }
+  #custom-zoom-controls button:active {
+    background: #eee;
+  }
 </style>
 </head>
 <body>
 <div id="map-wrapper">
   <div id="map"></div>
+</div>
+<div id="custom-zoom-controls">
+  <button id="zoom-in" onclick="map.zoomIn()">+</button>
+  <button id="zoom-out" onclick="map.zoomOut()">−</button>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -90,7 +164,7 @@ const GEOAPIFY_KEY = '514dfa64079046949e5521fcbb596523';
 const map = L.map('map', {
   center: [37.9838, 23.7275],
   zoom: 13,
-  zoomControl: true
+  zoomControl: false
 });
 
 L.tileLayer(
@@ -210,9 +284,9 @@ function addParking(json) {
       html: `<div class="place-marker" style="width:36px;height:36px;background:${hex}">
          <div class="place-inner">🅿️</div>
        </div>`,
-iconSize: [36, 36],
-iconAnchor: [18, 36],
-popupAnchor: [0, -38]
+      iconSize: [36, 36],
+      iconAnchor: [18, 36],
+      popupAnchor: [0, 0] /* Changed from [0, -38] to [0, 0] */
     });
     const levelGr = p.occupancyLevel === 'low' ? 'Χαμηλή' :
                     p.occupancyLevel === 'medium' ? 'Μέτρια' : 'Υψηλή';
@@ -278,9 +352,9 @@ function setCompassLock(locked) {
     map.scrollWheelZoom.enable();
     map.boxZoom.enable();
     map.keyboard.enable();
-    
+
     document.getElementById('map-wrapper').style.transform = "rotate(0deg)";
-    
+
     // Reset marker rotations
     const markers = document.querySelectorAll('.leaflet-marker-icon');
     markers.forEach(marker => {
@@ -299,10 +373,10 @@ function setCompassLock(locked) {
 function setCompassRotation(deg) {
   if (isCompassLocked) {
     const mapRotation = -deg;
-    
+
     // Rotate the wrapper (centered and oversized)
     document.getElementById('map-wrapper').style.transform = "rotate(" + mapRotation + "deg)";
-    
+
     // Counter-rotate the markers AND set pivot point to their bottom tip
     const markers = document.querySelectorAll('.leaflet-marker-icon');
     markers.forEach(marker => {
@@ -353,7 +427,7 @@ function updateTrafficLights() {
              </div>`,
       iconSize: [30, 30],
       iconAnchor: [15, 30],
-      popupAnchor: [0, -32]
+      popupAnchor: [0, 0] /* Changed from [0, -32] to [0, 0] */
     });
     const m = L.marker([tl.lat, tl.lng], { icon }).addTo(trafficLayer);
     m.bindPopup(`
@@ -371,6 +445,46 @@ setInterval(updateTrafficLights, 5000);
 window.onload = function() {
   try { Android.onMapReady(); } catch(e) { console.log('Bridge not ready yet'); }
 };
+
+  // ── Live GPS & Heading Tracking ──────────────────────────────────────────────
+let myLocMarker = null;
+
+// Call this from Android LocationCallback
+function updateMyLocation(lat, lng) {
+  if (!myLocMarker) {
+    const icon = L.divIcon({
+      className: '',
+      html: `
+        <div class="my-location-icon">
+          <div class="my-location-pulse"></div>
+          <div class="my-location-cone" id="my-cone"></div>
+          <div class="my-location-dot"></div>
+        </div>`,
+      iconSize: [80, 80],
+      iconAnchor: [40, 40]
+    });
+    // High zIndex ensures it stays above pins
+    myLocMarker = L.marker([lat, lng], { icon: icon, zIndexOffset: 9999 }).addTo(map);
+  } else {
+    myLocMarker.setLatLng([lat, lng]);
+  }
+
+  // If the user locked the compass, we also force the map to center on their movement
+  if (isCompassLocked) {
+    map.setView([lat, lng]);
+  }
+}
+
+// Call this from Android SensorEventListener (Compass/Gyro)
+function updateMyHeading(deg) {
+  const cone = document.getElementById('my-cone');
+  if (cone) {
+    // If map is locked and spinning, the marker stays upright, so cone faces 0deg (Up).
+    // If map is free, the map is static (North), so cone rotates to the physical compass degree.
+    const rotation = isCompassLocked ? 0 : deg;
+    cone.style.transform = `rotate(${rotation}deg)`;
+  }
+}
 </script>
 </body>
 </html>
