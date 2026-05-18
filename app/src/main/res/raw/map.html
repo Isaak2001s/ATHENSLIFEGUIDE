@@ -12,8 +12,9 @@
   /* ── Fix Map Corners: the map is oversized so rotation doesn't expose corners ── */
   #map-wrapper { 
     position: absolute;
-    top: -50vh; left: -50vw;
-    width: 200vw; height: 200vh;
+    top: 50vh; left: 50vw;
+    width: 160vmax; height: 160vmax;
+    margin-top: -80vmax; margin-left: -80vmax;
     transition: transform 0.1s linear;
     transform-origin: 50% 50%;
   }
@@ -21,10 +22,10 @@
     width: 100%; height: 100%; 
   }
   
-  .leaflet-top.leaflet-left { top: calc(50vh + 52px); left: calc(50vw); }
-  .leaflet-bottom.leaflet-right { bottom: calc(50vh); right: calc(50vw); }
-  .leaflet-bottom.leaflet-left { bottom: calc(50vh); left: calc(50vw); }
-  .leaflet-top.leaflet-right { top: calc(50vh + 52px); right: calc(50vw); }
+  .leaflet-top.leaflet-left { top: calc(80vmax - 50vh + 52px); left: calc(80vmax - 50vw); }
+  .leaflet-bottom.leaflet-right { bottom: calc(80vmax - 50vh); right: calc(80vmax - 50vw); }
+  .leaflet-bottom.leaflet-left { bottom: calc(80vmax - 50vh); left: calc(80vmax - 50vw); }
+  .leaflet-top.leaflet-right { top: calc(80vmax - 50vh + 52px); right: calc(80vmax - 50vw); }
 
   /* Custom marker styles */
   .aqi-marker {
@@ -53,9 +54,9 @@
     line-height: 1;
   }
 
-  /* Popup */
+  /* Popup adjustments */
   .leaflet-popup {
-    margin-bottom: 48px !important;
+    margin-bottom: 42px !important;
   }
   .leaflet-popup-content-wrapper {
     background: #1f2937;
@@ -281,11 +282,16 @@ function setCompassLock(locked) {
     document.getElementById('map-wrapper').style.transform = "rotate(0deg)";
     
     // Reset marker rotations
-    const markers = document.querySelectorAll('.leaflet-marker-icon, .leaflet-popup');
+    const markers = document.querySelectorAll('.leaflet-marker-icon');
     markers.forEach(marker => {
-      let currentTransform = marker.style.transform;
-      currentTransform = currentTransform.replace(/rotate\([^)]+\)/g, '').trim();
+      let currentTransform = marker.style.transform.split('rotate(')[0].trim();
       marker.style.transform = currentTransform;
+    });
+
+    const popups = document.querySelectorAll('.leaflet-popup');
+    popups.forEach(popup => {
+      let currentTransform = popup.style.transform.split('rotate(')[0].trim();
+      popup.style.transform = currentTransform;
     });
   }
 }
@@ -301,18 +307,16 @@ function setCompassRotation(deg) {
     const markers = document.querySelectorAll('.leaflet-marker-icon');
     markers.forEach(marker => {
       marker.style.transformOrigin = "50% 100%";
-      let currentTransform = marker.style.transform;
-      currentTransform = currentTransform.replace(/rotate\([^)]+\)/g, '').trim();
+      let currentTransform = marker.style.transform.split('rotate(')[0].trim();
       marker.style.transform = currentTransform + " rotate(" + deg + "deg)";
     });
 
-    // For popups, the anchor tip is bottom center + the 48px margin gap we created!
+    // To prevent popups from twisting sideways we counter-rotate them around their base (0,0 relative to marker)
+    // CSS margin-bottom: 42px permanently handles spacing above the marker, safely along the phone axis!
     const popups = document.querySelectorAll('.leaflet-popup');
     popups.forEach(popup => {
-      popup.style.transformOrigin = "50% calc(100% + 48px)";
-      let currentTransform = popup.style.transform;
-      currentTransform = currentTransform.replace(/rotate\([^)]+\)/g, '').trim();
-      // Counter-rotate popups
+      popup.style.transformOrigin = "50% 100%";
+      let currentTransform = popup.style.transform.split('rotate(')[0].trim();
       popup.style.transform = currentTransform + " rotate(" + deg + "deg)";
     });
   }
