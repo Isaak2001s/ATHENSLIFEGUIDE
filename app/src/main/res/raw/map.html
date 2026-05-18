@@ -329,7 +329,11 @@ function setFilter(filter) {
 }
 function goToLocation(lat, lng) {
   map.setView([lat, lng], 16);
-  L.circle([lat, lng], { radius: 40, color: '#0077b6', fillOpacity: 0.3 }).addTo(map);
+  // Add temporary pulsing circle that fades out
+  const circle = L.circle([lat, lng], { radius: 40, color: '#0077b6', fillOpacity: 0.3 }).addTo(map);
+  setTimeout(() => {
+    map.removeLayer(circle);
+  }, 2000);
 }
 
 // ── Rotation Lock ────────────────────────────────────────────────────────────
@@ -344,6 +348,11 @@ function setCompassLock(locked) {
     map.scrollWheelZoom.disable();
     map.boxZoom.disable();
     map.keyboard.disable();
+
+    // Snap origin exactly to user location center without animation so rotation wraps around it
+    if (myLocMarker) {
+      map.setView(myLocMarker.getLatLng(), map.getZoom(), {animate: false});
+    }
   } else {
     // Enable dragging and zooming
     map.dragging.enable();
@@ -469,9 +478,10 @@ function updateMyLocation(lat, lng) {
     myLocMarker.setLatLng([lat, lng]);
   }
 
-  // If the user locked the compass, we also force the map to center on their movement
+  // If the user locked the compass, we also force the map to center on their movement without animation
+  // This ensures the custom CSS map wrapper rotates exactly around the fixed GPS dot
   if (isCompassLocked) {
-    map.setView([lat, lng]);
+    map.setView([lat, lng], map.getZoom(), {animate: false});
   }
 }
 
