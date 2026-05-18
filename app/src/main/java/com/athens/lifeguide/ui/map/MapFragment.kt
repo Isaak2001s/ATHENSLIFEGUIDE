@@ -18,6 +18,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.athens.lifeguide.data.models.AthensData
 import com.athens.lifeguide.databinding.FragmentMapBinding
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import org.json.JSONArray
 import org.json.JSONObject
@@ -127,7 +130,7 @@ class MapFragment : Fragment() {
 
     private val sensorListener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent?) {
-            if (event?.sensor?.type == Sensor.TYPE_ROTATION_VECTOR && isGyroLocked) {
+            if (event?.sensor?.type == Sensor.TYPE_ROTATION_VECTOR) {
                 val rotationMatrix = FloatArray(9)
                 SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
                 
@@ -141,7 +144,14 @@ class MapFragment : Fragment() {
                 
                 var azimuthDeg = Math.toDegrees(orientation[0].toDouble()).toFloat()
                 if (azimuthDeg < 0) azimuthDeg += 360f
-                evalJs("setCompassRotation($azimuthDeg)")
+                
+                // Always update the cone rotation
+                evalJs("updateMyHeading($azimuthDeg)")
+                
+                // If map rotation is locked, rotate the whole map
+                if (isGyroLocked) {
+                    evalJs("setCompassRotation($azimuthDeg)")
+                }
             }
         }
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
@@ -152,15 +162,9 @@ class MapFragment : Fragment() {
             isGyroLocked = !isGyroLocked
             if (isGyroLocked) {
                 b.fabGyroLock.imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.GREEN)
-                rotationSensor?.let {
-                    sensorManager.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_UI)
-                } ?: run {
-                    Toast.makeText(requireContext(), "Δεν βρέθηκε αισθητήρας πυξίδας", Toast.LENGTH_SHORT).show()
-                }
                 evalJs("setCompassLock(true)")
             } else {
                 b.fabGyroLock.imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE)
-                sensorManager.unregisterListener(sensorListener)
                 evalJs("setCompassLock(false)")
             }
         }
@@ -168,17 +172,17 @@ class MapFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        if (isGyroLocked) {
-            sensorManager.unregisterListener(sensorListener)
-        }
+        sensorManager.unregisterListener(sensorListener)
+        LocationServices.getFusedLocationProviderClient(requireActivity()).removeLocationUpdates(locationCallback)
     }
 
     override fun onResume() {
         super.onResume()
-        if (isGyroLocked) {
-            rotationSensor?.let {
-                sensorManager.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_UI)
-            }
+        rotationSensor?.let {
+            sensorManager.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_UI)
+        }
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            requestContinuousLocation()
         }
     }
 
@@ -279,15 +283,30 @@ class MapFragment : Fragment() {
         evalJs("addAqiStations('${arr.toString().escapeForJs()}')")
     }
 
-    // ── Location ──────────────────────────────────────────────────────────
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(result: LocationResult) {
+            result.lastLocation?.let { loc ->
+                evalJs("updateMyLocation(${loc.latitude},${loc.longitude})")
+            }
+        }
+    }
+
     private fun checkAndFetchLocation() {
         val fine   = Manifest.permission.ACCESS_FINE_LOCATION
         val coarse = Manifest.permission.ACCESS_COARSE_LOCATION
         if (ContextCompat.checkSelfPermission(requireContext(), fine) == PackageManager.PERMISSION_GRANTED) {
             fetchLocation()
+            requestContinuousLocation()
         } else {
             locationLauncher.launch(arrayOf(fine, coarse))
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun requestContinuousLocation() {
+        val req = LocationRequest.Builder(com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, 3000L).build()
+        LocationServices.getFusedLocationProviderClient(requireActivity())
+            .requestLocationUpdates(req, locationCallback, android.os.Looper.getMainLooper())
     }
 
     @SuppressLint("MissingPermission")
