@@ -121,7 +121,7 @@
   /* ── Custom Fixed Zoom Controls ── */
   #custom-zoom-controls {
     position: absolute;
-    top: 52px; left: 10px;
+    top: 90px; left: 10px;
     z-index: 99999;
     display: flex;
     flex-direction: column;
@@ -299,7 +299,8 @@ function addParking(json) {
           <div style="font-size:20px;font-weight:800;color:${hex}">${p.available}/${p.total}</div>
           <div style="font-size:11px;color:#9ca3af">θέσεις</div>
         </div>
-        <div style="text-align:right">
+        <div style="text-align:right; position:relative;">
+          <div style="position:absolute; top:-36px; right:0; font-size:24px; cursor:pointer;" onclick="Android.saveFav('${p.id}','${escJs(p.name)}','parking',${p.lat},${p.lng},'${p.available}/${p.total} θέσεις — €${p.price}/ώρα')">⭐</div>
           <div style="font-size:20px;font-weight:800;color:#48CAE4">€${p.price}</div>
           <div style="font-size:11px;color:#9ca3af">ανά ώρα</div>
         </div>
@@ -312,10 +313,7 @@ function addParking(json) {
           🅿️ Κράτηση (15 λεπτά)
         </button>` :
         `<div style="text-align:center;padding:8px;color:#F44336;font-weight:600;font-size:13px">Πλήρες — Δεν υπάρχουν θέσεις</div>`
-      }
-      <button class="popup-btn" onclick="Android.saveFav('${p.id}','${escJs(p.name)}','parking',${p.lat},${p.lng},'${p.available}/${p.total} θέσεις — €${p.price}/ώρα')">
-        ⭐ Αγαπημένα
-      </button>`);
+      }`);
   });
 }
 function setFilter(filter) {
