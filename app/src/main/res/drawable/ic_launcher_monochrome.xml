@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+
+    <!-- Monochrome Parthenon silhouette for themed icons -->
+    <path android:fillColor="#000000"
+        android:pathData="M54,26 L82,43 L26,43 Z"/>
+    <path android:fillColor="#000000"
+        android:pathData="M26,43 L82,43 L82,47 L26,47 Z"/>
+    <path android:fillColor="#000000"
+        android:pathData="M30,47 L36,47 L36,50 L30,50 Z"/>
+    <path android:fillColor="#000000"
+        android:pathData="M40,47 L46,47 L46,50 L40,50 Z"/>
+    <path android:fillColor="#000000"
+        android:pathData="M51,47 L57,47 L57,50 L51,50 Z"/>
+    <path android:fillColor="#000000"
+        android:pathData="M62,47 L68,47 L68,50 L62,50 Z"/>
+    <path android:fillColor="#000000"
+        android:pathData="M72,47 L78,47 L78,50 L72,50 Z"/>
+    <path android:fillColor="#000000"
+        android:pathData="M31.5,50 L34.5,50 L34.5,70 L31.5,70 Z"/>
+    <path android:fillColor="#000000"
+        android:pathData="M41.5,50 L44.5,50 L44.5,70 L41.5,70 Z"/>
+    <path android:fillColor="#000000"
+        android:pathData="M52.5,50 L55.5,50 L55.5,70 L52.5,70 Z"/>
+    <path android:fillColor="#000000"
+        android:pathData="M63.5,50 L66.5,50 L66.5,70 L63.5,70 Z"/>
+    <path android:fillColor="#000000"
+        android:pathData="M73.5,50 L76.5,50 L76.5,70 L73.5,70 Z"/>
+    <path android:fillColor="#000000"
+        android:pathData="M26,70 L82,70 L82,73 L26,73 Z"/>
+    <path android:fillColor="#000000"
+        android:pathData="M24,73 L84,73 L84,76 L24,76 Z"/>
+    <path android:fillColor="#000000"
+        android:pathData="M22,76 L86,76 L86,79 L22,79 Z"/>
+</vector>

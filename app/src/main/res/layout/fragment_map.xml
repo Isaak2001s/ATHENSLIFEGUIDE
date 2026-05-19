@@ -48,18 +48,6 @@
                 app:chipStrokeWidth="1dp"/>
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chipAqi"
-                style="@style/Widget.MaterialComponents.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="💨 AQI"
-                android:textColor="@color/text_primary"
-                android:layout_marginEnd="6dp"
-                app:chipBackgroundColor="@color/chip_bg"
-                app:chipStrokeColor="@color/primary"
-                app:chipStrokeWidth="1dp"/>
-
-            <com.google.android.material.chip.Chip
                 android:id="@+id/chipParks"
                 style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:layout_width="wrap_content"

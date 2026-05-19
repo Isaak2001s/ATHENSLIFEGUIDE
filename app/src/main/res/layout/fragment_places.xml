@@ -57,8 +57,20 @@
             android:textStyle="bold"
             android:textColor="@color/text_secondary"
             android:paddingHorizontal="4dp"/>
-    </LinearLayout>
 
+        <TextView
+            android:id="@+id/tabFavorites"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:text="⭐ Αγαπημένα"
+            android:gravity="center"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_secondary"
+            android:layout_marginStart="4dp"
+            android:paddingHorizontal="4dp"/>
+    </LinearLayout>
     <!-- List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"

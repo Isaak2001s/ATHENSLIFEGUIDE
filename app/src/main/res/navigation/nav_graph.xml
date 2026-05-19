@@ -27,4 +27,8 @@
         android:id="@+id/parkingFragment"
         android:name="com.athens.lifeguide.ui.parking.ParkingFragment"
         android:label="Στάθμευση"/>
+    <fragment
+        android:id="@+id/sensorFragment"
+        android:name="com.athens.lifeguide.ui.sensor.SensorFragment"
+        android:label="Αισθητήρες"/>
 </navigation>

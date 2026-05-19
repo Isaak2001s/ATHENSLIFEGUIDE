@@ -13,7 +13,7 @@ import com.athens.lifeguide.data.models.Session
 import com.athens.lifeguide.data.repository.AppRepository
 import kotlinx.coroutines.launch
 
-enum class PlacesTab { PARKS, SQUARES, TRANSIT }
+enum class PlacesTab { PARKS, SQUARES, TRANSIT, FAVORITES }
 
 class PlacesViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -32,13 +32,30 @@ class PlacesViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun loadTab(tab: PlacesTab) {
         viewModelScope.launch {
-            val raw = when (tab) {
-                PlacesTab.PARKS   -> AthensData.parks
-                PlacesTab.SQUARES -> AthensData.squares
-                PlacesTab.TRANSIT -> AthensData.transit
+            if (tab == PlacesTab.FAVORITES) {
+                val favs = repo.getFavorites(Session.userId)
+                places.value = favs.map { fav ->
+                    Place(
+                        id = fav.placeId,
+                        name = fav.placeName,
+                        type = try { com.athens.lifeguide.data.models.PlaceType.valueOf(fav.placeType.uppercase()) }
+                        catch (e: Exception) { com.athens.lifeguide.data.models.PlaceType.PARK },
+                        lat = fav.latitude,
+                        lng = fav.longitude,
+                        description = fav.description,
+                        isFavorite = true
+                    )
+                }
+            } else {
+                val raw = when (tab) {
+                    PlacesTab.PARKS   -> AthensData.parks
+                    PlacesTab.SQUARES -> AthensData.squares
+                    PlacesTab.TRANSIT -> AthensData.transit
+                    else -> emptyList()
+                }
+                val favIds = repo.getFavorites(Session.userId).map { it.placeId }.toSet()
+                places.value = raw.map { it.copy(isFavorite = it.id in favIds) }
             }
-            val favIds = repo.getFavorites(Session.userId).map { it.placeId }.toSet()
-            places.value = raw.map { it.copy(isFavorite = it.id in favIds) }
         }
     }
 

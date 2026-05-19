@@ -4,24 +4,25 @@
     <item
         android:id="@+id/homeFragment"
         android:icon="@drawable/ic_home"
-        android:title="@string/nav_home"/>
+        android:title="Αρχική"/>
 
     <item
         android:id="@+id/mapFragment"
         android:icon="@drawable/ic_map"
-        android:title="@string/nav_map"/>
+        android:title="Χάρτης"/>
+
+    <item
+        android:id="@+id/parkingFragment"
+        android:icon="@drawable/ic_parking"
+        android:title="Στάθμευση"/>
 
     <item
         android:id="@+id/placesFragment"
         android:icon="@drawable/ic_park"
-        android:title="@string/nav_places"/>
+        android:title="Τοποθεσίες"/>
 
     <item
-        android:id="@+id/favoritesFragment"
-        android:icon="@drawable/ic_favorite"
-        android:title="@string/nav_favorites"/>
-    <item
-        android:id="@+id/parkingFragment"
-        android:icon="@drawable/ic_park"
-        android:title="Στάθμευση"/>
+        android:id="@+id/sensorFragment"
+        android:icon="@drawable/ic_sensor"
+        android:title="Αισθητήρες"/>
 </menu>
