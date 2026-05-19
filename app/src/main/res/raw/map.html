@@ -80,6 +80,7 @@
   .my-location-icon {
     position: relative;
     width: 80px; height: 80px;
+    pointer-events: none;
   }
   .my-location-cone {
     position: absolute;
@@ -480,7 +481,7 @@ function updateMyLocation(lat, lng) {
       iconAnchor: [40, 40]
     });
     // High zIndex ensures it stays above pins
-    myLocMarker = L.marker([lat, lng], { icon: icon, zIndexOffset: 9999 }).addTo(map);
+    myLocMarker = L.marker([lat, lng], { icon: icon, zIndexOffset: 9999, interactive: false }).addTo(map);
   } else {
     myLocMarker.setLatLng([lat, lng]);
   }
