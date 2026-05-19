@@ -45,8 +45,8 @@ class PlacesFragment : Fragment() {
         b.tabParks.setOnClickListener   { vm.switchTab(PlacesTab.PARKS) }
         b.tabSquares.setOnClickListener { vm.switchTab(PlacesTab.SQUARES) }
         b.tabTransit.setOnClickListener { vm.switchTab(PlacesTab.TRANSIT) }
+        b.tabFavorites.setOnClickListener { vm.switchTab(PlacesTab.FAVORITES) }
     }
-
     private fun observeVm() {
         vm.currentTab.observe(viewLifecycleOwner) { tab -> highlightTab(tab) }
         vm.places.observe(viewLifecycleOwner)     { adapter.submitList(it) }
@@ -61,17 +61,18 @@ class PlacesFragment : Fragment() {
     private fun highlightTab(tab: PlacesTab) {
         val active   = requireContext().getColor(R.color.primary)
         val inactive = requireContext().getColor(R.color.text_secondary)
-        b.tabParks.setTextColor(  if (tab == PlacesTab.PARKS)   active else inactive)
-        b.tabSquares.setTextColor(if (tab == PlacesTab.SQUARES) active else inactive)
-        b.tabTransit.setTextColor(if (tab == PlacesTab.TRANSIT) active else inactive)
+        b.tabParks.setTextColor(    if (tab == PlacesTab.PARKS)     active else inactive)
+        b.tabSquares.setTextColor(  if (tab == PlacesTab.SQUARES)   active else inactive)
+        b.tabTransit.setTextColor(  if (tab == PlacesTab.TRANSIT)   active else inactive)
+        b.tabFavorites.setTextColor(if (tab == PlacesTab.FAVORITES) active else inactive)
 
         val selBg   = R.drawable.bg_tab_selected
         val unselBg = 0
-        b.tabParks.setBackgroundResource(  if (tab == PlacesTab.PARKS)   selBg else unselBg)
-        b.tabSquares.setBackgroundResource(if (tab == PlacesTab.SQUARES) selBg else unselBg)
-        b.tabTransit.setBackgroundResource(if (tab == PlacesTab.TRANSIT) selBg else unselBg)
+        b.tabParks.setBackgroundResource(    if (tab == PlacesTab.PARKS)     selBg else unselBg)
+        b.tabSquares.setBackgroundResource(  if (tab == PlacesTab.SQUARES)   selBg else unselBg)
+        b.tabTransit.setBackgroundResource(  if (tab == PlacesTab.TRANSIT)   selBg else unselBg)
+        b.tabFavorites.setBackgroundResource(if (tab == PlacesTab.FAVORITES) selBg else unselBg)
     }
-
     override fun onDestroyView() { super.onDestroyView(); _b = null }
 }
 
